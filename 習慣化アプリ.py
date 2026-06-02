@@ -508,3 +508,23 @@ def main():
  
 if __name__ == "__main__":
     main()
+
+import streamlit as st
+
+# パスワード認証
+def check_password():
+    if "authenticated" not in st.session_state:
+        st.session_state.authenticated = False
+
+    if not st.session_state.authenticated:
+        st.title("🔒 ログイン")
+        password = st.text_input("パスワードを入力", type="password")
+        if st.button("ログイン"):
+            if password == "habit":
+                st.session_state.authenticated = True
+                st.rerun()
+            else:
+                st.error("パスワードが違います")
+        st.stop()
+
+check_password()
