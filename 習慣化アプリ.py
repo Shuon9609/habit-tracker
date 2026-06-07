@@ -562,5 +562,3 @@ def main():
  
 if __name__ == "__main__":
     main()
-
-app_password = "habit"
