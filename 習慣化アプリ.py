@@ -1,6 +1,7 @@
 # =============================================
 # 習慣化アプリ - app.py (Google Sheets対応版)
 # =============================================
+
 import streamlit as st
 import json
 from datetime import datetime, date, timedelta
@@ -11,7 +12,7 @@ import calendar
 import matplotlib.font_manager as fm
 import gspread
 from google.oauth2.service_account import Credentials
- 
+
 # =============================================
 # 日本語フォント設定
 # =============================================
@@ -27,9 +28,9 @@ def set_japanese_font():
             return font
     plt.rcParams['font.family'] = 'DejaVu Sans'
     return 'DejaVu Sans'
- 
+
 FONT = set_japanese_font()
- 
+
 # =============================================
 # Google Sheets 接続
 # =============================================
@@ -37,7 +38,7 @@ SCOPES = [
     "https://www.googleapis.com/auth/spreadsheets",
     "https://www.googleapis.com/auth/drive"
 ]
- 
+
 @st.cache_resource
 def get_sheet():
     """
@@ -57,10 +58,9 @@ def get_sheet():
     except gspread.WorksheetNotFound:
         sheet = spreadsheet.add_worksheet(title="data", rows=10, cols=2)
         # 初期データを書き込む
-        sheet.update("A1", "key")
-        sheet.update("B1", "value")
+        sheet.update([["key", "value"]], "A1")
     return sheet
- 
+
 # =============================================
 # データの読み込み・保存（Google Sheets版）
 # =============================================
@@ -77,7 +77,7 @@ def load_data():
                 return json.loads(row["value"])
     except Exception as e:
         st.warning(f"データ読み込みエラー: {e}")
- 
+
     # データがなければ初期値を返す
     return {
         "habits": [],
@@ -86,7 +86,7 @@ def load_data():
         "weekly_goals": {},
         "weekly_records": {}
     }
- 
+
 def save_data(data):
     """
     データをGoogle Sheetsに保存する。
@@ -104,12 +104,14 @@ def save_data(data):
             sheet.append_row(["habit_data", json_str])
     except Exception as e:
         st.error(f"データ保存エラー: {e}")
- 
+
 # =============================================
 # パスワード認証
 # =============================================
 def check_password():
-  if not st.session_state.authenticated:
+    if "authenticated" not in st.session_state:
+        st.session_state.authenticated = False
+    if not st.session_state.authenticated:
         st.title("🔒 ログイン")
         password = st.text_input("パスワードを入力", type="password")
         if st.button("ログイン"):
@@ -119,13 +121,13 @@ def check_password():
             else:
                 st.error("パスワードが違います")
         st.stop()
- 
+
 # =============================================
 # 週の月曜日を取得するヘルパー関数
 # =============================================
 def get_week_monday(d):
     return d - timedelta(days=d.weekday())
- 
+
 # =============================================
 # カレンダー描画関数
 # =============================================
@@ -187,7 +189,7 @@ def draw_calendar(year, month, habit_name, records, habit_start_dates):
     ax.legend(handles=legend_elements, loc="lower right", fontsize=8)
     plt.tight_layout()
     return fig
- 
+
 # =============================================
 # 週間達成率グラフ関数
 # =============================================
@@ -235,18 +237,18 @@ def draw_weekly_chart(habit_name, records, habit_start_dates):
     fig.patch.set_facecolor("#FFFFFF")
     plt.tight_layout()
     return fig
- 
+
 # =============================================
 # メインアプリ
 # =============================================
 def main():
     st.set_page_config(page_title="習慣トラッカー", page_icon="✅", layout="centered")
     st.markdown("<style>.stButton>button { width: 100%; }</style>", unsafe_allow_html=True)
- 
+
     #check_password()
- 
+
     st.title("✅ 習慣トラッカー")
- 
+
     data = load_data()
     habits = data["habits"]
     records = data["records"]
@@ -258,11 +260,11 @@ def main():
         data["weekly_records"] = {}
     habit_start_dates = data["habit_start_dates"]
     weekly_goals = data["weekly_goals"]
- 
+
     tab1, tab2, tab3, tab4, tab5 = st.tabs([
         "📋 毎日チェック", "🎯 週間目標", "📊 一覧表", "📅 カレンダー", "📈 達成率"
     ])
- 
+
     # --------------------------------------------------
     # タブ1：毎日チェック
     # --------------------------------------------------
@@ -277,7 +279,7 @@ def main():
             st.subheader(f"📅 {selected_date.strftime('%Y年%m月%d日')}")
         else:
             st.subheader(f"📅 {selected_date.strftime('%Y/%m/%d')}")
- 
+
         st.markdown("#### 新しい習慣を追加")
         col1, col2 = st.columns([3, 1])
         with col1:
@@ -293,9 +295,9 @@ def main():
                     st.rerun()
                 elif new_habit in habits:
                     st.warning("その習慣はすでに登録されています")
- 
+
         st.divider()
- 
+
         if not habits:
             st.info("👆 まずは習慣を追加してみましょう！")
         else:
@@ -330,7 +332,7 @@ def main():
                 st.divider()
                 st.metric("達成数", f"{achieved} / {len(visible_habits)}",
                           delta=f"{achieved/len(visible_habits)*100:.0f}%" if visible_habits else "0%")
- 
+
     # --------------------------------------------------
     # タブ2：週間目標
     # --------------------------------------------------
@@ -360,16 +362,16 @@ def main():
                     st.rerun()
                 elif new_weekly_name in weekly_goals:
                     st.warning("その目標はすでに登録されています")
- 
+
         st.divider()
- 
+
         if not weekly_goals:
             st.info("👆 週間目標を追加してみましょう！")
         else:
             today = date.today()
             this_monday = get_week_monday(today)
             st.markdown("#### 今週の達成状況")
- 
+
             for goal_name, goal_info in list(weekly_goals.items()):
                 target = goal_info["target"]
                 achieved_this_week = 0
@@ -380,7 +382,7 @@ def main():
                     date_str = d.strftime("%Y-%m-%d")
                     if data["weekly_records"].get(date_str, {}).get(goal_name):
                         achieved_this_week += 1
- 
+
                 col_name, col_del = st.columns([6, 1])
                 with col_name:
                     if achieved_this_week >= target:
@@ -392,7 +394,7 @@ def main():
                         del weekly_goals[goal_name]
                         save_data(data)
                         st.rerun()
- 
+
                 col_count, col_bar = st.columns([1, 3])
                 with col_count:
                     color = "green" if achieved_this_week >= target else "orange"
@@ -406,7 +408,7 @@ def main():
                     bar = "🟩" * filled + "⬜" * (10 - filled)
                     st.markdown(f"<div style='font-size:1.4rem; margin-top:12px'>{bar}</div>",
                                 unsafe_allow_html=True)
- 
+
                 st.markdown("今週の達成日：")
                 week_days_dates = []
                 week_days_labels = []
@@ -416,7 +418,7 @@ def main():
                         break
                     week_days_labels.append(f"{d.month}/{d.day}({'月火水木金土日'[i]})")
                     week_days_dates.append(d)
- 
+
                 check_cols = st.columns(len(week_days_dates))
                 for i, (d, label) in enumerate(zip(week_days_dates, week_days_labels)):
                     date_str = d.strftime("%Y-%m-%d")
@@ -429,10 +431,10 @@ def main():
                         if date_str not in data["weekly_records"]:
                             data["weekly_records"][date_str] = {}
                         data["weekly_records"][date_str][goal_name] = new_val
- 
+
                 save_data(data)
                 st.divider()
- 
+
             st.markdown("#### 過去8週の達成履歴")
             selected_goal = st.selectbox("目標を選択", list(weekly_goals.keys()), key="history_goal")
             if selected_goal:
@@ -450,7 +452,7 @@ def main():
                             count += 1
                     label = f"{w_monday.month}/{w_monday.day}"
                     history.append({"week": label, "count": count, "target": target})
- 
+
                 fig, ax = plt.subplots(figsize=(9, 4))
                 colors = ["#4CAF50" if h["count"] >= h["target"] else "#FF9800" for h in history]
                 weeks = [h["week"] for h in history]
@@ -476,7 +478,7 @@ def main():
                 plt.tight_layout()
                 st.pyplot(fig)
                 st.markdown("🟩 目標達成　🟧 未達成")
- 
+
     # --------------------------------------------------
     # タブ3：一覧表
     # --------------------------------------------------
@@ -518,7 +520,7 @@ def main():
             df = pd.DataFrame(table_data).T
             st.dataframe(df, use_container_width=True)
             st.markdown("✅ 達成　❌ 未達成　⬜ 未記録　－ 習慣追加前")
- 
+
     # --------------------------------------------------
     # タブ4：カレンダー
     # --------------------------------------------------
@@ -538,7 +540,7 @@ def main():
                                               index=date.today().month - 1)
             fig = draw_calendar(selected_year, selected_month, selected_habit, records, habit_start_dates)
             st.pyplot(fig)
- 
+
     # --------------------------------------------------
     # タブ5：週間達成率
     # --------------------------------------------------
@@ -556,6 +558,6 @@ def main():
             🟠 40〜70% → もう少し頑張ろう  
             🔴 40%未満 → 習慣を見直してみよう
             """)
- 
+
 if __name__ == "__main__":
     main()
