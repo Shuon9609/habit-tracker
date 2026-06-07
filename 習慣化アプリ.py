@@ -245,7 +245,7 @@ def main():
     st.set_page_config(page_title="習慣トラッカー", page_icon="✅", layout="centered")
     st.markdown("<style>.stButton>button { width: 100%; }</style>", unsafe_allow_html=True)
 
-    #check_password()
+    check_password()
 
     st.title("✅ 習慣トラッカー")
 
