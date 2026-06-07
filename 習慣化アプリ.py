@@ -88,22 +88,18 @@ def load_data():
     }
 
 def save_data(data):
-    """
-    データをGoogle Sheetsに保存する。
-    全データをJSON文字列に変換してB列に保存。
-    """
     try:
         sheet = get_sheet()
         json_str = json.dumps(data, ensure_ascii=False)
-        # A列を検索してhabit_dataの行を探す
         try:
             cell = sheet.find("habit_data")
             sheet.update_cell(cell.row, 2, json_str)
         except gspread.exceptions.CellNotFound:
-            # なければ新しく追加
             sheet.append_row(["habit_data", json_str])
+        st.success("保存成功！")  # 追加
     except Exception as e:
-        st.error(f"データ保存エラー: {e}")
+        st.error(f"データ保存エラー詳細: {e}")  # 詳細表示
+
 
 # =============================================
 # パスワード認証
