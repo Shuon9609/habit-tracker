@@ -1,7 +1,6 @@
 # =============================================
 # 習慣化アプリ - app.py (Google Sheets対応版)
 # =============================================
- 
 import streamlit as st
 import json
 from datetime import datetime, date, timedelta
@@ -109,19 +108,17 @@ def save_data(data):
 # =============================================
 # パスワード認証
 # =============================================
-def check_password():
-    if "authenticated" not in st.session_state:
-        st.session_state.authenticated = False
-    if not st.session_state.authenticated:
-        st.title("🔒 ログイン")
-        password = st.text_input("パスワードを入力", type="password")
-        if st.button("ログイン"):
-            if password == st.secrets.get("app_password", "password"):
-                st.session_state.authenticated = True
-                st.rerun()
-            else:
-                st.error("パスワードが違います")
-        st.stop()
+#def check_password():
+ # if not st.session_state.authenticated:
+  #      st.title("🔒 ログイン")
+   #     password = st.text_input("パスワードを入力", type="password")
+    #    if st.button("ログイン"):
+     #       if password == st.secrets.get("app_password", "password"):
+      #          st.session_state.authenticated = True
+       #         st.rerun()
+        #    else:
+         #       st.error("パスワードが違います")
+        #st.stop()
  
 # =============================================
 # 週の月曜日を取得するヘルパー関数
