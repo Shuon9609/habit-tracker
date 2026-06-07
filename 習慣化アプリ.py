@@ -108,17 +108,17 @@ def save_data(data):
 # =============================================
 # パスワード認証
 # =============================================
-#def check_password():
- # if not st.session_state.authenticated:
-  #      st.title("🔒 ログイン")
-   #     password = st.text_input("パスワードを入力", type="password")
-    #    if st.button("ログイン"):
-     #       if password == st.secrets.get("app_password", "password"):
-      #          st.session_state.authenticated = True
-       #         st.rerun()
-        #    else:
-         #       st.error("パスワードが違います")
-        #st.stop()
+def check_password():
+  if not st.session_state.authenticated:
+        st.title("🔒 ログイン")
+        password = st.text_input("パスワードを入力", type="password")
+        if st.button("ログイン"):
+            if password == st.secrets.get("app_password", "password"):
+                st.session_state.authenticated = True
+                st.rerun()
+            else:
+                st.error("パスワードが違います")
+        st.stop()
  
 # =============================================
 # 週の月曜日を取得するヘルパー関数
@@ -243,7 +243,7 @@ def main():
     st.set_page_config(page_title="習慣トラッカー", page_icon="✅", layout="centered")
     st.markdown("<style>.stButton>button { width: 100%; }</style>", unsafe_allow_html=True)
  
-    check_password()
+    #check_password()
  
     st.title("✅ 習慣トラッカー")
  
