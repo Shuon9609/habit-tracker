@@ -283,12 +283,16 @@ def main():
                                       label_visibility="collapsed")
         with col2:
             if st.button("追加", use_container_width=True):
-                if new_habit and new_habit not in habits:
-                    habits.append(new_habit)
-                    habit_start_dates[new_habit] = date.today().strftime("%Y-%m-%d")
-                    save_data(data)
-                    st.success(f"「{new_habit}」を追加しました！")
-                    st.rerun()
+    st.write("ボタンが押されました")  # 追加
+    if new_habit and new_habit not in habits:
+        st.write(f"習慣名：{new_habit}")  # 追加
+        habits.append(new_habit)
+        habit_start_dates[new_habit] = date.today().strftime("%Y-%m-%d")
+        save_data(data)
+        st.success(f"「{new_habit}」を追加しました！")
+        st.rerun()
+    else:
+        st.write(f"条件に合わず：new_habit={new_habit}, habits={habits}")  # 追加
                 elif new_habit in habits:
                     st.warning("その習慣はすでに登録されています")
 
