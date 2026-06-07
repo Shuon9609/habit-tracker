@@ -115,7 +115,7 @@ def check_password():
         st.title("🔒 ログイン")
         password = st.text_input("パスワードを入力", type="password")
         if st.button("ログイン"):
-            if password == st.secrets.get("app_password", "password"):
+            if password == "1234":
                 st.session_state.authenticated = True
                 st.rerun()
             else:
